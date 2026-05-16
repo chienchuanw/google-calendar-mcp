@@ -1,3 +1,5 @@
+import { SEND_UPDATES_VALUES } from "./calendar-client.js";
+
 export interface JsonSchemaProperty {
   type: string;
   description?: string;
@@ -25,7 +27,7 @@ const CALENDAR_ID: JsonSchemaProperty = {
 };
 const SEND_UPDATES: JsonSchemaProperty = {
   type: "string",
-  enum: ["none", "all", "externalOnly"],
+  enum: [...SEND_UPDATES_VALUES],
   description:
     "Who to email about this change. Defaults to 'none' (no attendee notifications). Set 'all' to notify everyone.",
 };

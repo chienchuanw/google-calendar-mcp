@@ -36,7 +36,22 @@ export interface FreeBusyParams {
   timeMax: string;
 }
 
-export type SendUpdates = "all" | "externalOnly" | "none";
+export const SEND_UPDATES_VALUES = ["none", "all", "externalOnly"] as const;
+export type SendUpdates = (typeof SEND_UPDATES_VALUES)[number];
+
+interface WriteResult {
+  id: string;
+  htmlLink?: string;
+  sendUpdates: SendUpdates;
+}
+
+function idsOrPrimary(ids?: string[]): string[] {
+  return ids?.length ? ids : ["primary"];
+}
+
+function writeResult(e: calendar_v3.Schema$Event, sendUpdates: SendUpdates): WriteResult {
+  return { id: e.id ?? "", htmlLink: e.htmlLink ?? undefined, sendUpdates };
+}
 
 function whenOf(p?: calendar_v3.Schema$EventDateTime): string {
   return p?.dateTime ?? p?.date ?? "";
@@ -74,7 +89,7 @@ export class CalendarClient {
   }
 
   async listEvents(params: ListEventsParams): Promise<NormalizedEvent[]> {
-    const calendarIds = params.calendarIds?.length ? params.calendarIds : ["primary"];
+    const calendarIds = idsOrPrimary(params.calendarIds);
     const perCalendar = await Promise.all(
       calendarIds.map(async (calendarId) => {
         const res = await this.api.events.list({
@@ -99,7 +114,7 @@ export class CalendarClient {
   }
 
   async freeBusy(params: FreeBusyParams): Promise<Record<string, { start: string; end: string }[]>> {
-    const calendarIds = params.calendarIds?.length ? params.calendarIds : ["primary"];
+    const calendarIds = idsOrPrimary(params.calendarIds);
     const res = await this.api.freebusy.query({
       requestBody: {
         timeMin: params.timeMin,
@@ -119,9 +134,9 @@ export class CalendarClient {
     calendarId: string,
     event: calendar_v3.Schema$Event,
     sendUpdates: SendUpdates = "none",
-  ): Promise<{ id: string; htmlLink?: string; sendUpdates: SendUpdates }> {
+  ): Promise<WriteResult> {
     const res = await this.api.events.insert({ calendarId, sendUpdates, requestBody: event });
-    return { id: res.data.id ?? "", htmlLink: res.data.htmlLink ?? undefined, sendUpdates };
+    return writeResult(res.data, sendUpdates);
   }
 
   async updateEvent(
@@ -129,9 +144,9 @@ export class CalendarClient {
     eventId: string,
     patch: calendar_v3.Schema$Event,
     sendUpdates: SendUpdates = "none",
-  ): Promise<{ id: string; htmlLink?: string; sendUpdates: SendUpdates }> {
+  ): Promise<WriteResult> {
     const res = await this.api.events.patch({ calendarId, eventId, sendUpdates, requestBody: patch });
-    return { id: res.data.id ?? "", htmlLink: res.data.htmlLink ?? undefined, sendUpdates };
+    return writeResult(res.data, sendUpdates);
   }
 
   async deleteEvent(
