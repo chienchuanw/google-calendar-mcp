@@ -8,6 +8,7 @@ import {
   refreshIfExpired,
   type OAuthCredentialsFile,
 } from "./oauth.js";
+import { getCredentialsPath } from "./config.js";
 
 export interface RegistryDeps {
   loadCredentials: () => OAuthCredentialsFile | null;
@@ -47,7 +48,7 @@ export class ClientRegistry {
     const creds = this.deps.loadCredentials();
     if (!creds) {
       throw new Error(
-        "No credentials.json found. Place your Google OAuth client file at ~/.gcal-mcp/credentials.json (see the README setup steps).",
+        `No credentials.json found at ${getCredentialsPath()}. Place your Google OAuth client file there (see the README setup steps).`,
       );
     }
 
