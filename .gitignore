@@ -1,2 +1,6 @@
 # Logs
 .remember/
+
+node_modules
+dist
+build
