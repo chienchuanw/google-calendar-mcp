@@ -1,0 +1,30 @@
+{
+  "name": "google-calendar-mcp",
+  "version": "0.1.0",
+  "description": "Multi-account Google Calendar MCP server — read, create, update, delete and analyze calendars across several Google accounts.",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "gcal-mcp": "dist/index.js" },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/index.js",
+    "dev": "npm run build && node dist/index.js",
+    "auth": "node dist/index.js auth",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "googleapis": "^144.0.0",
+    "open": "^10.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  },
+  "engines": { "node": ">=18.0.0" }
+}
